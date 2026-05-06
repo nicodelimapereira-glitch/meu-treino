@@ -1,0 +1,22 @@
+{
+  "name": "BeastMode - 1% Melhor que Ontem",
+  "short_name": "BeastMode",
+  "description": "Aplicativo de acompanhamento de treinos BeastMode",
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#071221",
+  "theme_color": "#4ECDC4",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
