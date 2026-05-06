@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>BeastMode</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--t:#4ECDC4;--t2:#31A8A0;--n:#071221;--n2:#0d1c33;--n3:#122240;--nb:#1E2D7D;--tx:#E8F4F8;--mu:#7a9ab8;--br:rgba(78,205,196,0.13);--br2:rgba(78,205,196,0.28);--red:#ff6b6b;--amb:#ffc45e;--blu:#60b8ff}
+html{height:100%;background:var(--n)}
+body{color:var(--tx);font-family:'Montserrat',sans-serif;background:var(--n);min-height:100vh;max-width:420px;margin:0 auto;position:relative}
+
+/* SPLASH — logo blends, no white box */
+#splash{position:fixed;inset:0;max-width:420px;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;background:#4ECDC4;transition:opacity 1s ease;overflow:hidden}
+#splash.fade{opacity:0;pointer-events:none}
+.sl-img{width:80%;max-width:280px;height:auto;display:block;background:none;mix-blend-mode:multiply;animation:pop .9s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes pop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+.ldots{display:flex;gap:10px;margin-top:44px}
+.ld{width:11px;height:11px;border-radius:50%;background:#1E2D7D;animation:lp 1.3s ease-in-out infinite;opacity:.3}
+.ld:nth-child(2){animation-delay:.22s}.ld:nth-child(3){animation-delay:.44s}
+@keyframes lp{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.6)}}
+
+/* APP */
+.app{display:none;flex-direction:column;min-height:100vh}
+.app.show{display:flex}
+.screen{display:none;flex-direction:column;min-height:100vh}
+.screen.active{display:flex}
+.cnt{flex:1;overflow-y:auto;padding-bottom:84px}
+.tb{padding:13px 16px;display:flex;align-items:center;justify-content:space-between;background:var(--n2);border-bottom:1px solid var(--br);position:sticky;top:0;z-index:10}
+.tb h2{font-size:15px;font-weight:800}
+.bbtn{width:36px;height:36px;border-radius:50%;background:rgba(78,205,196,.08);border:1px solid var(--br2);color:var(--t);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;line-height:1}
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:var(--n2);border-top:1px solid var(--br);display:flex;padding:10px 0 14px;z-index:100}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;opacity:.32;transition:opacity .2s;border:none;background:none}
+.ni.a{opacity:1}
+.ni svg{width:22px;height:22px}
+.ni span{font-size:9px;font-weight:700;color:var(--t)}
+.ni:not(.a) span{color:var(--mu)}
+.hh{padding:18px 16px 14px;background:linear-gradient(180deg,var(--n2),var(--n));flex-shrink:0}
+.grt p{font-size:11px;font-weight:600;color:var(--mu)}
+.grt h1{font-size:22px;font-weight:900;background:linear-gradient(90deg,var(--tx),var(--t));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.3px;margin-top:3px}
+.row-sb{display:flex;align-items:center;justify-content:space-between}
+.av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--t),var(--nb));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#fff;flex-shrink:0;cursor:pointer;border:2px solid rgba(78,205,196,.4)}
+.whc{margin:0 14px 10px;border-radius:18px;overflow:hidden;cursor:pointer;border:1px solid var(--br2)}
+.wh-top{padding:16px;background:linear-gradient(135deg,#102040,#0d1c33)}
+.wtag{display:inline-flex;background:rgba(78,205,196,.12);border:1px solid rgba(78,205,196,.28);border-radius:20px;padding:3px 10px;font-size:9px;font-weight:800;color:var(--t);letter-spacing:.8px;text-transform:uppercase}
+.wh-title{font-size:26px;font-weight:900;letter-spacing:1px;margin-top:7px;font-family:'Bebas Neue',sans-serif}
+.wh-sub{font-size:11px;color:var(--mu);margin-top:2px}
+.wdays{display:flex;gap:5px;margin-top:11px}
+.wd{width:34px;height:34px;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:9px;font-weight:800}
+.wd.off{background:rgba(255,107,107,.05);color:rgba(255,107,107,.4);border:1px solid rgba(255,107,107,.12);font-size:8px}
+.wd.past{background:rgba(78,205,196,.05);color:var(--mu);border:1px solid rgba(78,205,196,.07)}
+.wd.done{background:rgba(78,205,196,.16);color:var(--t);border:1px solid rgba(78,205,196,.25)}
+.wd.today{background:var(--t);color:#071221;border:1px solid var(--t)}
+.wd.fut{background:transparent;color:var(--mu);border:1px solid rgba(255,255,255,.07)}
+.wd .dt{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.7}
+.wh-bot{padding:13px 16px;background:linear-gradient(135deg,#0d1c33,#071221);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mtags{display:flex;gap:5px;flex-wrap:wrap;flex:1}
+.mtag{font-size:8px;font-weight:700;padding:3px 7px;border-radius:5px;background:rgba(78,205,196,.08);color:var(--t);border:1px solid rgba(78,205,196,.15)}
+.sbtn{background:var(--t);color:#071221;border:none;border-radius:10px;padding:10px 18px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:11px;cursor:pointer;white-space:nowrap}
+.off-card{margin:0 14px 10px;border-radius:18px;border:1px solid rgba(255,107,107,.15);background:linear-gradient(135deg,rgba(255,107,107,.04),var(--n2));padding:24px 20px;text-align:center}
+.off-title{font-size:28px;font-weight:900;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;color:var(--red)}
+.off-sub{font-size:12px;color:var(--mu);margin-top:8px;line-height:1.6}
+.plyo-banner{margin:0 14px 10px;border-radius:14px;background:linear-gradient(135deg,rgba(30,45,125,.5),rgba(7,18,33,.8));border:1px solid rgba(30,45,125,.5);padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.pb-tag{font-size:9px;font-weight:800;color:var(--blu);letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px}
+.pb-title{font-size:14px;font-weight:800;color:var(--tx)}
+.pb-sub{font-size:10px;color:var(--mu);margin-top:2px}
+.pb-btn{background:linear-gradient(135deg,#1E2D7D,#2a3aaa);color:white;border:none;border-radius:9px;padding:9px 13px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:10px;cursor:pointer;white-space:nowrap}
+.sl2{font-size:10px;font-weight:800;color:var(--mu);letter-spacing:1.1px;text-transform:uppercase}
+.qg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;padding:0 14px 14px}
+.qc{background:var(--n2);border:1px solid var(--br);border-radius:14px;padding:13px 8px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer}
+.qci{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.qcl{font-size:9px;font-weight:700;text-align:center;color:var(--tx)}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 14px 16px}
+.sc{background:var(--n2);border:1px solid var(--br);border-radius:14px;padding:13px}
+.scl{font-size:9px;font-weight:800;color:var(--mu);letter-spacing:.9px;text-transform:uppercase}
+.scv{font-size:25px;font-weight:900;color:var(--t);margin-top:4px;font-family:'Bebas Neue',sans-serif}
+.scs{font-size:10px;color:var(--mu);margin-top:1px}
+.whcard{margin:10px 14px;background:linear-gradient(135deg,rgba(78,205,196,.05),rgba(30,45,125,.05));border:1px solid var(--br2);border-radius:14px;padding:13px}
+.whcard h3{font-size:18px;font-weight:900}
+.whcard p{font-size:11px;color:var(--mu);margin-top:2px}
+.whtags{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.prog-txt{display:flex;justify-content:space-between;padding:0 14px 5px;font-size:10px;color:var(--mu);font-weight:600}
+.pbw{margin:0 14px 10px;background:var(--n3);border-radius:8px;height:6px;overflow:hidden}
+.pb{height:6px;border-radius:8px;background:linear-gradient(90deg,var(--t),var(--t2));transition:width .4s}
+.ec{margin:0 14px 9px;background:var(--n2);border:1px solid var(--br);border-radius:14px;overflow:hidden;cursor:pointer}
+.ec.done-all{border-color:rgba(78,205,196,.4);background:rgba(78,205,196,.03)}
+.ecthumb{height:115px;background:var(--n3);border-bottom:1px solid var(--br);overflow:hidden;position:relative}
+.ecthumb img{width:100%;height:115px;object-fit:cover;display:block}
+.ecthumb .ov{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,18,33,.05),rgba(7,18,33,.6))}
+.ecrow{display:flex;align-items:center;justify-content:space-between;padding:10px 12px}
+.ecn{font-size:13px;font-weight:700}
+.ecm{font-size:10px;color:var(--mu);margin-top:1px}
+.ecch{width:26px;height:26px;border-radius:50%;background:rgba(78,205,196,.08);border:1px solid var(--br2);display:flex;align-items:center;justify-content:center;color:var(--t);font-size:13px;flex-shrink:0;font-weight:900}
+.ecch.done{background:var(--t);border-color:var(--t);color:#071221}
+.pills{display:flex;gap:4px;padding:0 12px 9px;flex-wrap:wrap}
+.pill{font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;background:rgba(78,205,196,.07);color:var(--t);border:1px solid rgba(78,205,196,.13)}
+.pill.done{background:rgba(78,205,196,.18);border-color:rgba(78,205,196,.35)}
+.cardio-bar{margin:0 14px 9px;background:rgba(255,179,64,.06);border:1px solid rgba(255,179,64,.2);border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:10px}
+.cardio-bar img{width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0}
+.cardio-bar span{font-size:12px;color:var(--amb);font-weight:600}
+.edimg{width:100%;height:210px;background:var(--n3);overflow:hidden;flex-shrink:0;position:relative}
+.edimg img{width:100%;height:210px;object-fit:cover;display:block}
+.edimg .ov{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,18,33,.05),rgba(7,18,33,.72))}
+.edimg-title{position:absolute;bottom:14px;left:14px;right:14px}
+.edimg-title h3{font-size:22px;font-weight:900;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;color:#fff}
+.mtags2{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.ds{background:var(--n2);border:1px solid var(--br);border-radius:14px;margin:10px 14px;overflow:hidden}
+.dst{padding:11px 14px;font-size:9px;font-weight:800;color:var(--mu);letter-spacing:.9px;text-transform:uppercase;border-bottom:1px solid var(--br)}
+.str{display:grid;grid-template-columns:30px 1fr 1fr 1fr 34px;align-items:center;padding:9px 10px;border-bottom:1px solid var(--br);gap:4px}
+.str:last-child{border-bottom:none}
+.str.dr{background:rgba(78,205,196,.04)}
+.sn{width:26px;height:26px;border-radius:7px;border:1.5px solid var(--br2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--mu)}
+.sn.dn{border-color:var(--t);color:var(--t);background:rgba(78,205,196,.1)}
+.sc2{text-align:center}
+.sv2{font-size:14px;font-weight:800}
+.slb{font-size:7px;font-weight:700;color:var(--mu);letter-spacing:.3px;text-transform:uppercase;margin-top:1px}
+.ev{background:var(--n3);border:1px solid var(--br2);color:var(--tx);font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;width:100%;text-align:center;border-radius:6px;outline:none;padding:4px 2px}
+.ev:focus{border-color:var(--t)}
+.chk{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--br2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:var(--mu);line-height:1}
+.chk.done{border-color:var(--t);background:var(--t);color:#071221}
+.mset{background:var(--n2);border:1px solid var(--br);border-radius:14px;margin:10px 14px;overflow:hidden}
+.mset-row{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--br)}
+.mset-row:last-child{border-bottom:none}
+.mset-label{font-size:12px;color:var(--mu)}
+.mset-input{background:var(--n3);border:1px solid var(--br2);color:var(--t);border-radius:8px;padding:5px 10px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;width:100px;text-align:center;outline:none}
+.mset-input:focus{border-color:var(--t)}
+.btn{margin:10px 14px;width:calc(100% - 28px);border:none;border-radius:12px;padding:14px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:13px;cursor:pointer;display:block}
+.btn.green{background:var(--t);color:#071221;box-shadow:0 4px 16px rgba(78,205,196,.18)}
+.btn.blu{background:linear-gradient(135deg,#1E2D7D,#2a3aaa);color:white}
+.btn.ghost{background:transparent;color:var(--mu);border:1px solid var(--br);margin-top:0}
+.btn.red{background:rgba(255,107,107,.07);color:var(--red);border:1px solid rgba(255,107,107,.2);margin-top:0}
+.ibnr{margin:10px 14px;background:rgba(78,205,196,.05);border:1px solid var(--br2);border-radius:11px;padding:10px 12px;display:flex;gap:8px}
+.ibtx{font-size:11px;color:var(--t);line-height:1.55;font-weight:500}
+#tmod{position:fixed;inset:0;max-width:420px;margin:0 auto;background:rgba(7,18,33,.95);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+#tmod.show{display:flex}
+.tm-b{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--t);background:rgba(78,205,196,.1);border:1px solid var(--br2);border-radius:20px;padding:5px 14px;margin-bottom:14px}
+.tm-l{font-size:13px;color:var(--mu);font-weight:600;margin-bottom:10px;text-align:center;padding:0 24px}
+.tmr{width:190px;height:190px;margin:0 auto 20px;position:relative}
+.tmr svg{transform:rotate(-90deg)}
+.rbg{fill:none;stroke:var(--n3);stroke-width:12}
+.rp{fill:none;stroke:var(--t);stroke-width:12;stroke-linecap:round;stroke-dasharray:534;stroke-dashoffset:0;transition:stroke-dashoffset .95s linear,stroke .5s}
+.tnum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:900;color:var(--tx);font-family:'Bebas Neue',sans-serif;letter-spacing:2px}
+.tm-row{display:flex;gap:10px}
+.tm-add{background:rgba(78,205,196,.1);border:1px solid var(--br2);color:var(--t);border-radius:11px;padding:12px 22px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;cursor:pointer}
+.tm-skip{background:transparent;border:1px solid var(--br);color:var(--mu);border-radius:11px;padding:12px 32px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;cursor:pointer;margin-top:12px}
+.altc{margin:0 14px 9px;background:var(--n2);border:1px solid var(--br);border-radius:13px;overflow:hidden;cursor:pointer}
+.altcimg{height:90px;background:var(--n3);overflow:hidden;position:relative}
+.altcimg img{width:100%;height:90px;object-fit:cover;display:block}
+.altcimg .ov{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,18,33,.05),rgba(7,18,33,.55))}
+.altci{padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
+.altcn{font-size:13px;font-weight:700}
+.altcm{font-size:9px;color:var(--t);font-weight:600;margin-top:2px}
+.ph{padding:20px 18px;text-align:center;background:linear-gradient(135deg,#071830,#0d1c33);flex-shrink:0;border-bottom:1px solid var(--br)}
+.pbd{display:inline-flex;align-items:center;background:rgba(64,169,255,.1);border:1px solid rgba(64,169,255,.2);color:var(--blu);border-radius:20px;padding:3px 11px;font-size:9px;font-weight:800;letter-spacing:.7px;margin-bottom:8px}
+.phh{font-size:28px;font-weight:900;letter-spacing:1px;font-family:'Bebas Neue',sans-serif}
+.phs{font-size:11px;color:var(--mu);margin-top:3px}
+.pc{margin:0 14px 9px;background:var(--n2);border:1px solid var(--br);border-radius:13px;overflow:hidden}
+.pcimg{height:90px;background:var(--n3);overflow:hidden}
+.pcimg img{width:100%;height:90px;object-fit:cover;display:block}
+.pch{padding:11px 13px;display:flex;gap:10px;align-items:center}
+.pcn{width:29px;height:29px;border-radius:8px;background:var(--t);color:#071221;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pcna{font-size:13px;font-weight:700}
+.pct{font-size:10px;color:var(--mu);margin-top:1px}
+.pcs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:0 13px 10px}
+.pcss{background:var(--n3);border-radius:8px;padding:8px;text-align:center}
+.pcssv{font-size:16px;font-weight:900;color:var(--t);font-family:'Bebas Neue',sans-serif}
+.pcssl{font-size:8px;color:var(--mu);font-weight:700;margin-top:1px;text-transform:uppercase;letter-spacing:.4px}
+.pctip{margin:0 13px 10px;background:rgba(255,196,94,.06);border:1px solid rgba(255,196,94,.15);border-radius:8px;padding:7px 10px;font-size:10px;color:var(--amb);line-height:1.5}
+.prof-hero{padding:24px 18px 20px;text-align:center;background:linear-gradient(135deg,#0d1c33,#071221)}
+.prof-av{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--t),var(--nb));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;color:#fff;margin:0 auto 12px;border:3px solid var(--t)}
+.prof-name{font-size:26px;font-weight:900;font-family:'Bebas Neue',sans-serif;letter-spacing:1px}
+.prof-sub{font-size:11px;color:var(--mu);margin-top:3px}
+.form-section{margin:10px 14px;background:var(--n2);border:1px solid var(--br);border-radius:14px;overflow:hidden}
+.form-row{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--br)}
+.form-row:last-child{border-bottom:none}
+.form-label{font-size:12px;color:var(--mu)}
+.form-input{background:var(--n3);border:1px solid var(--br2);color:var(--tx);border-radius:8px;padding:6px 10px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;width:120px;text-align:center;outline:none}
+.form-input:focus{border-color:var(--t)}
+.form-select{background:var(--n3);border:1px solid var(--br2);color:var(--tx);border-radius:8px;padding:6px 10px;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;width:120px;outline:none;-webkit-appearance:none}
+.form-select:focus{border-color:var(--t)}
+.prof-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--br);margin:12px 14px;border-radius:14px;overflow:hidden}
+.ps{background:var(--n2);padding:14px 8px;text-align:center}
+.psv{font-size:22px;font-weight:900;color:var(--t);font-family:'Bebas Neue',sans-serif}
+.psl{font-size:9px;color:var(--mu);font-weight:700;margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.hist-row{margin:0 14px 8px;background:var(--n2);border:1px solid var(--br);border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
+.hr-n{font-size:12px;font-weight:700}
+.hr-d{font-size:10px;color:var(--mu);margin-top:2px}
+.hr-v{font-size:11px;font-weight:700;color:var(--t);text-align:right}
+.hr-s{font-size:10px;color:var(--mu);text-align:right;margin-top:2px}
+.ind-hero{padding:20px 16px;background:linear-gradient(135deg,#0d1c33,#071221)}
+.ind-hero h2{font-size:26px;font-weight:900;font-family:'Bebas Neue',sans-serif;letter-spacing:1px}
+.ind-hero p{font-size:11px;color:var(--mu);margin-top:2px}
+.level-card{margin:12px 14px;background:linear-gradient(135deg,rgba(30,45,125,.4),rgba(78,205,196,.08));border:1px solid var(--br2);border-radius:16px;padding:16px}
+.level-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(78,205,196,.12);border:1px solid var(--br2);border-radius:20px;padding:4px 12px;font-size:10px;font-weight:800;color:var(--t);letter-spacing:.5px;margin-bottom:10px}
+.level-name{font-size:22px;font-weight:900;font-family:'Bebas Neue',sans-serif;letter-spacing:1px}
+.level-desc{font-size:11px;color:var(--mu);margin-top:3px;line-height:1.5}
+.level-bar-wrap{margin-top:12px;background:var(--n3);border-radius:8px;height:8px;overflow:hidden}
+.level-bar{height:8px;border-radius:8px;background:linear-gradient(90deg,var(--t),var(--blu));transition:width .6s ease}
+.level-pct{font-size:10px;color:var(--mu);font-weight:600;margin-top:5px;text-align:right}
+.ind-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 14px 4px}
+.ind-card{background:var(--n2);border:1px solid var(--br);border-radius:14px;padding:14px}
+.ind-card.full{grid-column:span 2}
+.ind-label{font-size:9px;font-weight:800;color:var(--mu);letter-spacing:.9px;text-transform:uppercase}
+.ind-val{font-size:28px;font-weight:900;color:var(--t);margin-top:5px;font-family:'Bebas Neue',sans-serif}
+.ind-sub{font-size:10px;color:var(--mu);margin-top:2px}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px}
+.wg-day{background:var(--n3);border-radius:6px;height:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:8px;font-weight:700;color:var(--mu)}
+.wg-day.t{background:rgba(78,205,196,.15);color:var(--t)}
+.wg-day.off2{background:rgba(255,107,107,.06);color:rgba(255,107,107,.4)}
+.wg-dot{width:5px;height:5px;border-radius:50%;background:var(--t)}
+</style>
+</head>
+<body>
+
+<div id="tmod">
+  <div class="tm-b">DESCANSO</div>
+  <div class="tm-l" id="tm-l">Serie concluida!</div>
+  <div class="tmr"><svg width="190" height="190" viewBox="0 0 190 190"><circle class="rbg" cx="95" cy="95" r="85"/><circle class="rp" id="rp" cx="95" cy="95" r="85"/></svg><div class="tnum" id="tnum">60</div></div>
+  <div class="tm-row"><button class="tm-add" onclick="addT(15)">+15s</button><button class="tm-add" onclick="addT(30)">+30s</button></div>
+  <button class="tm-skip" onclick="skipT()">Pular descanso</button>
+</div>
+
+<!-- SPLASH: mix-blend-mode:multiply elimina o fundo branco/quadrado da logo -->
+<div id="splash">
+  <img class="sl-img" src="data:image/png;base64,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" alt="BeastMode">
+  <div class="ldots"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>
+</div>
+
+<div class="app" id="app">
+
+  <div class="screen active" id="s-home">
+    <div class="cnt">
+      <div class="hh"><div class="row-sb"><div class="grt"><p id="home-date">...</p><h1>Ola, Nicolas!</h1></div><div class="av" onclick="goTo('profile')">NI</div></div></div>
+      <div style="height:8px"></div>
+      <div id="home-hero"></div>
+      <div id="plyo-banner-home"></div>
+      <div style="display:flex;justify-content:space-between;padding:0 14px 8px;align-items:center"><div class="sl2">Acesso rapido</div></div>
+      <div class="qg">
+        <div class="qc" onclick="goToPlyo()"><div class="qci" style="background:rgba(64,169,255,.1)">&#9889;</div><div class="qcl">Impulsao</div></div>
+        <div class="qc" onclick="goTo('indicadores')"><div class="qci" style="background:rgba(255,179,64,.1)">&#128200;</div><div class="qcl">Indicadores</div></div>
+        <div class="qc" onclick="goTo('profile')"><div class="qci" style="background:rgba(78,205,196,.1)">&#128100;</div><div class="qcl">Perfil</div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:0 14px 9px;align-items:center"><div class="sl2">Resumo</div><div style="color:var(--t);font-size:11px;font-weight:700;cursor:pointer" onclick="goTo('indicadores')">Ver mais</div></div>
+      <div class="sg">
+        <div class="sc"><div class="scl">Treinos feitos</div><div class="scv" id="stat-done">0</div><div class="scs">desde set/2025</div></div>
+        <div class="sc"><div class="scl">Dias treinando</div><div class="scv" id="stat-days">0</div><div class="scs">desde 17/09/2025</div></div>
+        <div class="sc"><div class="scl">Sequencia</div><div class="scv">3&#128293;</div><div class="scs">semanas ativas</div></div>
+        <div class="sc"><div class="scl">Tempo medio</div><div class="scv">58<span style="font-size:12px">m</span></div><div class="scs">por treino</div></div>
+      </div>
+    </div>
+    <div class="bnav">
+      <button class="ni a" id="nav-home"><svg viewBox="0 0 24 24" fill="#4ECDC4" stroke="#4ECDC4" stroke-width="1"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Inicio</span></button>
+      <button class="ni" id="nav-treino" onclick="openWorkout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg><span>Treino</span></button>
+      <button class="ni" id="nav-ind" onclick="goTo('indicadores')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>Indicadores</span></button>
+      <button class="ni" id="nav-profile" onclick="goTo('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Perfil</span></button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-workout">
+    <div class="tb"><button class="bbtn" onclick="goTo('home')">&#8249;</button><h2 id="wl-title">Treino</h2><div style="width:36px"></div></div>
+    <div class="cnt" id="workout-cnt"></div>
+  </div>
+
+  <div class="screen" id="s-exercise">
+    <div class="tb"><button class="bbtn" onclick="goTo('workout')">&#8249;</button><h2 id="ex-title">Exercicio</h2><div style="width:36px"></div></div>
+    <div class="cnt" id="exercise-cnt"></div>
+  </div>
+
+  <div class="screen" id="s-alternatives">
+    <div class="tb"><button class="bbtn" onclick="goTo('exercise')">&#8249;</button><h2>Maquina Ocupada</h2><div style="width:36px"></div></div>
+    <div class="cnt">
+      <div class="ibnr"><span style="font-size:14px;flex-shrink:0">&#128161;</span><span class="ibtx" id="alt-banner">Alternativas:</span></div>
+      <div id="alt-cnt"></div>
+      <button class="btn ghost" onclick="goTo('exercise')" style="margin-top:6px">&#8592; Voltar ao exercicio</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-plyo">
+    <div class="tb"><button class="bbtn" onclick="goTo('home')">&#8249;</button><h2>Impulsao</h2><div style="width:36px"></div></div>
+    <div class="cnt">
+      <div class="ph"><div class="pbd">&#9889; POS-TREINO</div><div class="phh">Treino de Impulsao</div><div class="phs" id="plyo-lbl">Potencia explosiva</div></div>
+      <div style="height:8px"></div>
+      <div class="ibnr"><span style="font-size:14px;flex-shrink:0">&#127919;</span><span class="ibtx">Execute logo apos o treino. Descanse <strong>90s</strong> entre series.</span></div>
+      <div id="plyo-list"></div>
+      <button class="btn blu" onclick="startPlyoActive()">&#9658; Iniciar sequencia</button>
+      <button class="btn ghost" onclick="goTo('home')">Pular por hoje</button>
+    </div>
+  </div>
+
+  <div class="screen" id="s-plyo-active">
+    <div class="tb"><button class="bbtn" onclick="goTo('plyo')">&#8249;</button><h2 id="pa-title">Em andamento</h2><div style="width:36px"></div></div>
+    <div class="cnt" id="pa-cnt"></div>
+  </div>
+
+  <div class="screen" id="s-indicadores">
+    <div class="tb"><button class="bbtn" onclick="goTo('home')">&#8249;</button><h2>Indicadores</h2><div style="width:36px"></div></div>
+    <div class="cnt">
+      <div class="ind-hero"><h2>Progresso</h2><p>Membro desde 17 de Setembro de 2025</p></div>
+      <div id="level-section"></div>
+      <div class="ind-grid">
+        <div class="ind-card"><div class="ind-label">Dias treinando</div><div class="ind-val" id="ind-days">0</div><div class="ind-sub">desde 17/09/2025</div></div>
+        <div class="ind-card"><div class="ind-label">Semanas completas</div><div class="ind-val" id="ind-weeks">0</div><div class="ind-sub">de academia</div></div>
+        <div class="ind-card"><div class="ind-label">Treinos concluidos</div><div class="ind-val" id="ind-t">0</div><div class="ind-sub">total acumulado</div></div>
+        <div class="ind-card"><div class="ind-label">Impulsao feitas</div><div class="ind-val" id="ind-p">0</div><div class="ind-sub">total acumulado</div></div>
+        <div class="ind-card full">
+          <div class="ind-label">Semana atual</div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mu);font-weight:600;margin:8px 0 4px"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span style="color:rgba(255,107,107,.5)">Sab</span><span style="color:rgba(255,107,107,.5)">Dom</span></div>
+          <div class="week-grid" id="week-grid"></div>
+        </div>
+        <div class="ind-card full"><div class="ind-label">Proximos treinos</div><div id="next-wks" style="margin-top:8px"></div></div>
+      </div>
+      <div style="height:16px"></div>
+    </div>
+  </div>
+
+  <div class="screen" id="s-profile">
+    <div class="tb"><button class="bbtn" onclick="goTo('home')">&#8249;</button><h2>Perfil</h2><div style="width:36px"></div></div>
+    <div class="cnt">
+      <div class="prof-hero"><div class="prof-av">NI</div><div class="prof-name">Nicolas</div><div class="prof-sub">Membro desde 17 de Setembro de 2025</div></div>
+      <div class="prof-stats">
+        <div class="ps"><div class="psv" id="prof-t">0</div><div class="psl">Treinos</div></div>
+        <div class="ps"><div class="psv" id="prof-w">0</div><div class="psl">Semanas</div></div>
+        <div class="ps"><div class="psv">58m</div><div class="psl">Media</div></div>
+      </div>
+      <div class="form-section">
+        <div class="dst">Dados Pessoais</div>
+        <div class="form-row"><span class="form-label">&#128200; Altura</span><div style="display:flex;align-items:center;gap:6px"><input class="form-input" id="p-altura" type="number" placeholder="175" min="100" max="250" onchange="saveAll()"><span style="font-size:11px;color:var(--mu)">cm</span></div></div>
+        <div class="form-row"><span class="form-label">&#127881; Idade</span><div style="display:flex;align-items:center;gap:6px"><input class="form-input" id="p-idade" type="number" placeholder="20" min="10" max="80" onchange="saveAll()"><span style="font-size:11px;color:var(--mu)">anos</span></div></div>
+        <div class="form-row"><span class="form-label">&#9875; Genero</span><select class="form-select" id="p-genero" onchange="saveAll()"><option value="">Selecionar</option><option value="masculino">Masculino</option><option value="feminino">Feminino</option><option value="outro">Outro</option></select></div>
+        <div class="form-row"><span class="form-label">&#127959; Biotipo</span><select class="form-select" id="p-biotipo" onchange="saveAll()"><option value="">Selecionar</option><option value="ectomorfo">Ectomorfo</option><option value="mesomorfo">Mesomorfo</option><option value="endomorfo">Endomorfo</option></select></div>
+      </div>
+      <div style="padding:0 14px 9px;margin-top:4px"><div class="sl2">Historico recente</div></div>
+      <div class="hist-row"><div><div class="hr-n">Perna + Panturrilha</div><div class="hr-d">Sex, 02 Mai</div></div><div><div class="hr-v">&#10003; Concluido</div><div class="hr-s">7 ex · 55min</div></div></div>
+      <div class="hist-row"><div><div class="hr-n">Ombro + Abdomen</div><div class="hr-d">Qui, 01 Mai</div></div><div><div class="hr-v">&#10003; Concluido</div><div class="hr-s">7 ex · 52min</div></div></div>
+      <div class="hist-row"><div><div class="hr-n">Costas + Biceps</div><div class="hr-d">Qua, 30 Abr</div></div><div><div class="hr-v">&#10003; Concluido</div><div class="hr-s">7 ex · 61min</div></div></div>
+      <div class="hist-row"><div><div class="hr-n">Peito + Triceps</div><div class="hr-d">Ter, 29 Abr</div></div><div><div class="hr-v">&#10003; Concluido</div><div class="hr-s">6 ex · 52min</div></div></div>
+      <div style="height:8px"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── IMAGES ────────────────────────────────────────────────────────
+const IMG = {
+  supino_v:   'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=240&fit=crop&q=80',
+  supino_i:   'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=240&fit=crop&q=80',
+  voador:     'https://images.unsplash.com/photo-1532029837206-abbe2b7620e3?w=600&h=240&fit=crop&q=80',
+  crucifixo:  'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=600&h=240&fit=crop&q=80',
+  tricep_maq: 'https://images.unsplash.com/photo-1530822847156-5df684ec5933?w=600&h=240&fit=crop&q=80',
+  tricep_pul: 'https://images.unsplash.com/photo-1581009137042-c552e485697a?w=600&h=240&fit=crop&q=80',
+  puxada_ab:  'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=600&h=240&fit=crop&q=80',
+  puxada_art: 'https://images.unsplash.com/photo-1502224562085-639556652f33?w=600&h=240&fit=crop&q=80',
+  remada_art: 'https://images.unsplash.com/photo-1581009137042-c552e485697a?w=600&h=240&fit=crop&q=80',
+  remada_bx:  'https://images.unsplash.com/photo-1598971639973-a68eeafe7bbf?w=600&h=240&fit=crop&q=80',
+  romano:     'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=240&fit=crop&q=80',
+  rosca_dir:  'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&h=240&fit=crop&q=80',
+  rosca_mart: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&h=240&fit=crop&q=80',
+  // FIX: Elevacao lateral halteres — imagem específica de elevacao lateral
+  elev_lat_h: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&h=240&fit=crop&q=80',
+  elev_lat_m: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=600&h=240&fit=crop&q=80',
+  elev_front: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&h=240&fit=crop&q=80',
+  voador_inv: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&h=240&fit=crop&q=80',
+  abd_supra:  'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=240&fit=crop&q=80',
+  abd_infra:  'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&h=240&fit=crop&q=80',
+  prancha:    'https://images.unsplash.com/photo-1512036666432-2181c1f26420?w=600&h=240&fit=crop&q=80',
+  leg45:      'https://images.unsplash.com/photo-1567598275553-d2e5949e2b76?w=600&h=240&fit=crop&q=80',
+  leg_horiz:  'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&h=240&fit=crop&q=80',
+  extensora:  'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&h=240&fit=crop&q=80',
+  flexora:    'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&h=240&fit=crop&q=80',
+  abdutora:   'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&h=240&fit=crop&q=80',
+  pant_leg:   'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=600&h=240&fit=crop&q=80',
+  pant_sent:  'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=600&h=240&fit=crop&q=80',
+  esteira:    'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=600&h=240&fit=crop&q=80',
+  sqjump:     'https://images.unsplash.com/photo-1599058917765-a780eda07a3e?w=600&h=240&fit=crop&q=80',
+  boxjump:    'https://images.unsplash.com/photo-1547483238-f400e65ccd56?w=600&h=240&fit=crop&q=80',
+  broad:      'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=600&h=240&fit=crop&q=80',
+  // Depth Jump — imagem de atleta caindo de step / impacto de queda
+  depjump:    'https://images.unsplash.com/photo-1590552515252-3a5a1bce7bed?w=600&h=240&fit=crop&q=80',
+};
+
+// ── SCHEDULE ──────────────────────────────────────────────────────
+const SCH={0:'off',1:'peito',2:'costas',3:'ombro',4:'perna',5:'peito',6:'off'};
+const WN={peito:'Peito + Triceps',costas:'Costas + Biceps',ombro:'Ombro + Abdomen',perna:'Perna + Panturrilha',off:'Descanso'};
+const PLYO_DAYS=[1,3,5];
+const START=new Date(2025,8,17);
+const DAYS=['Dom','Seg','Ter','Qua','Qui','Sex','Sab'];
+const MONTHS=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+// ── WORKOUT DATA ───────────────────────────────────────────────────
+const W={
+peito:{name:'Peito + Triceps',sub:'Forca de Empurrar',muscles:['Peitoral','Triceps','Deltoide Ant.'],cardio:true,exercises:[
+  {n:'Supino Maquina Vertical',  m:['Peitoral Medio','Triceps'],        img:'supino_v',  sr:[{r:12,w:50,d:90},{r:12,w:45,d:90},{r:12,w:45,d:90}],  alts:['Supino Reto Barra','Crossover Cabo'],         altIMG:['supino_v','voador']},
+  {n:'Supino Maquina Inclinado', m:['Peitoral Superior','Triceps'],     img:'supino_i',  sr:[{r:12,w:20,d:90},{r:12,w:20,d:90},{r:12,w:16,d:90}],  alts:['Supino Inclinado Halteres','Crossover Alto'],  altIMG:['supino_i','voador']},
+  {n:'Voador Peitoral',          m:['Peitoral','Serratil'],             img:'voador',    sr:[{r:12,w:25,d:60},{r:12,w:25,d:60},{r:12,w:20,d:60}],  alts:['Crossover Cabo','Crucifixo Halteres'],        altIMG:['voador','crucifixo']},
+  {n:'Crucifixo Halter',         m:['Peitoral','Redondo Menor'],        img:'crucifixo', sr:[{r:12,w:5,d:60},{r:12,w:5,d:60},{r:12,w:5,d:60}],    alts:['Voador Peitoral','Crossover Cabo'],           altIMG:['voador','voador']},
+  {n:'Triceps Maquina',          m:['Triceps','Cabeca Lateral'],        img:'tricep_maq',sr:[{r:12,w:15,d:60},{r:12,w:12,d:60},{r:12,w:12,d:60}], alts:['Triceps Corda','Triceps Frances'],            altIMG:['tricep_pul','tricep_maq']},
+  {n:'Triceps Pulley',           m:['Triceps','Cabeca Lateral'],        img:'tricep_pul',sr:[{r:12,w:0,d:60},{r:12,w:0,d:60},{r:12,w:0,d:60}],   alts:['Triceps Maquina','Triceps Frances'],          altIMG:['tricep_maq','tricep_pul']},
+]},
+costas:{name:'Costas + Biceps',sub:'Forca de Puxar',muscles:['Latissimo','Biceps','Trapezio','Lombar'],cardio:true,exercises:[
+  {n:'Puxada Alta Aberta',       m:['Latissimo','Biceps'],              img:'puxada_ab', sr:[{r:12,w:20,d:90},{r:12,w:20,d:90},{r:12,w:20,d:90}],  alts:['Puxada Articulada','Pull-Up'],                altIMG:['puxada_art','puxada_ab']},
+  {n:'Puxada Alta Articulada',   m:['Latissimo','Romboide'],            img:'puxada_art',sr:[{r:12,w:40,d:90},{r:12,w:35,d:90},{r:12,w:35,d:90}],  alts:['Puxada Aberta','Puxada c/ Corda'],            altIMG:['puxada_ab','puxada_art']},
+  {n:'Remada Articulada',        m:['Costas','Romboide','Biceps'],      img:'remada_art',sr:[{r:12,w:20,d:75},{r:12,w:16,d:75},{r:12,w:16,d:75}],  alts:['Remada Curvada Barra','Remada Baixa'],        altIMG:['remada_art','remada_bx']},
+  {n:'Remada Baixa',             m:['Costas Inferior','Biceps'],        img:'remada_bx', sr:[{r:12,w:25,d:75},{r:12,w:30,d:75},{r:12,w:35,d:75}],  alts:['Remada Articulada','Remada Curvada'],         altIMG:['remada_art','remada_bx']},
+  {n:'Banco Romano',             m:['Lombar','Gluteos','Posterior'],    img:'romano',    sr:[{r:15,w:0,d:60},{r:15,w:0,d:60},{r:15,w:0,d:60}],    alts:['Stiff c/ Halteres','Good Morning'],           altIMG:['remada_bx','remada_bx']},
+  {n:'Rosca Direta com Barra',   m:['Biceps','Braquial'],               img:'rosca_dir', sr:[{r:12,w:12,d:75},{r:12,w:12,d:75},{r:12,w:12,d:75},{r:12,w:12,d:75}],alts:['Rosca c/ Halteres','Rosca no Cabo'],altIMG:['rosca_dir','rosca_mart']},
+  {n:'Rosca Martelo',            m:['Biceps','Braquioradial'],          img:'rosca_mart',sr:[{r:12,w:5,d:60},{r:12,w:5,d:60},{r:12,w:5,d:60}],    alts:['Rosca Direta','Rosca Concentrada'],           altIMG:['rosca_dir','rosca_mart']},
+]},
+ombro:{name:'Ombro + Abdomen',sub:'Forca Overhead & Core',muscles:['Deltoide','Trapezio','Core','Obliquos'],cardio:true,exercises:[
+  {n:'Elevacao Lateral Halteres',m:['Deltoide Lateral'],               img:'elev_lat_h',sr:[{r:12,w:5,d:60},{r:12,w:5,d:60},{r:12,w:5,d:60}],    alts:['Elevacao Lateral Maquina','Elevacao no Cabo'],altIMG:['elev_lat_m','elev_lat_h']},
+  {n:'Elevacao Lateral Maquina', m:['Deltoide Lateral','Supraespinal'],img:'elev_lat_m', sr:[{r:12,w:29,d:60},{r:12,w:24,d:60},{r:12,w:29,d:60}], alts:['Elevacao Lateral Halteres','Elevacao no Cabo'],altIMG:['elev_lat_h','elev_lat_m']},
+  {n:'Elevacao Frontal Halteres',m:['Deltoide Anterior'],              img:'elev_front', sr:[{r:12,w:5,d:60},{r:12,w:5,d:60},{r:12,w:5,d:60}],   alts:['Elevacao Frontal Cabo','Press Frontal'],      altIMG:['elev_front','elev_front']},
+  {n:'Voador Invertido',         m:['Deltoide Posterior','Romboide'],  img:'voador_inv', sr:[{r:15,w:15,d:60},{r:15,w:20,d:60},{r:15,w:20,d:60}], alts:['Face Pull','Remada Alta'],                    altIMG:['remada_art','remada_bx']},
+  {n:'Abdominal Supra',          m:['Reto Abdominal Superior'],        img:'abd_supra',  sr:[{r:20,w:0,d:45},{r:20,w:0,d:45},{r:20,w:0,d:45}],   alts:['Abdominal Maquina','Crunch Cabo'],            altIMG:['abd_supra','abd_infra']},
+  {n:'Abdominal Infra',          m:['Reto Abdominal Inferior'],        img:'abd_infra',  sr:[{r:20,w:0,d:45},{r:20,w:0,d:45},{r:20,w:0,d:45}],   alts:['Hanging Leg Raise','Joelho no Peito'],        altIMG:['abd_infra','abd_supra']},
+  {n:'Prancha Isometrica',       m:['Core','Transverso','Gluteos'],    img:'prancha',    sr:[{r:40,w:0,d:40},{r:40,w:0,d:40},{r:40,w:0,d:40}],   alts:['Prancha Lateral','Dead Bug'],                 altIMG:['prancha','abd_supra']},
+]},
+perna:{name:'Perna + Panturrilha',sub:'Potencia e Forca',muscles:['Quadriceps','Posterior','Gluteos','Panturrilha'],cardio:false,exercises:[
+  {n:'Leg Press 45',             m:['Quadriceps','Gluteos'],            img:'leg45',      sr:[{r:12,w:0,d:90},{r:12,w:0,d:90},{r:12,w:0,d:90}],   alts:['Agachamento Livre','Hack Squat'],             altIMG:['leg45','leg_horiz']},
+  {n:'Leg Press Horizontal',     m:['Quadriceps','Gluteos'],            img:'leg_horiz',  sr:[{r:12,w:69,d:90},{r:12,w:64,d:90},{r:12,w:69,d:90}], alts:['Leg Press 45','Agachamento Sumo'],            altIMG:['leg_horiz','leg45']},
+  {n:'Cadeira Extensora',        m:['Quadriceps','Reto Femoral'],       img:'extensora',  sr:[{r:15,w:10,d:60},{r:15,w:10,d:60},{r:15,w:10,d:60}], alts:['Agachamento Livre','Afundo c/ Halteres'],     altIMG:['leg45','leg_horiz']},
+  {n:'Cadeira Flexora',          m:['Posterior','Biceps Femoral'],      img:'flexora',    sr:[{r:15,w:20,d:60},{r:15,w:25,d:60},{r:15,w:20,d:60}], alts:['Mesa Flexora','Stiff c/ Halteres'],           altIMG:['flexora','remada_bx']},
+  {n:'Cadeira Abdutora',         m:['Gluteos','Abdutores'],             img:'abdutora',   sr:[{r:15,w:20,d:45},{r:15,w:20,d:45},{r:15,w:20,d:45}], alts:['Elevacao Pelvica','Agachamento Sumo'],        altIMG:['abdutora','leg45']},
+  {n:'Panturrilha Leg Horizontal',m:['Gastrocnemio','Soleo'],          img:'pant_leg',   sr:[{r:15,w:24,d:45},{r:15,w:29,d:45},{r:15,w:34,d:45}], alts:['Panturrilha em Pe','Panturrilha Sentado'],    altIMG:['pant_sent','pant_leg']},
+  {n:'Panturrilha Sentado',      m:['Soleo','Gastrocnemio'],            img:'pant_sent',  sr:[{r:15,w:5,d:45},{r:15,w:5,d:45},{r:15,w:5,d:45}],   alts:['Panturrilha em Pe','Panturrilha no Step'],    altIMG:['pant_leg','pant_sent']},
+]},
+};
+
+const plyoEx=[
+  {n:'Squat Jump',         img:'sqjump',  tgt:'Explosao de quadriceps e gluteos',    sets:3,reps:'8-10',rest:90, tip:'Agache ate 90 graus e exploda verticalmente. Aterrisse suave com joelhos flexionados.'},
+  {n:'Box Jump',           img:'boxjump', tgt:'Potencia de membros inferiores',       sets:3,reps:'6-8', rest:90, tip:'Use step de 40-50cm. Salte com os dois pes, pouse suave e desca controlado.'},
+  {n:'Broad Jump',         img:'broad',   tgt:'Impulso horizontal e gluteos',         sets:3,reps:'5-6', rest:90, tip:'Salto horizontal maximo. Meca a distancia a cada serie para acompanhar evolucao.'},
+  // TROCA: Sprint Curto substituido por Depth Jump (Salto em Profundidade)
+  {n:'Depth Jump',         img:'depjump', tgt:'Forca reativa e ciclo elastico',       sets:3,reps:'5-6', rest:120,tip:'Caia do step (~30cm), toque o solo e salte IMEDIATAMENTE. Contato minimo com o chao para maximo reflexo.'},
+];
+
+const LEVELS=[
+  {min:0,  name:'Recruta',    icon:'&#127987;',desc:'Voce esta iniciando. Consistencia e tudo!',           color:'#7a9ab8'},
+  {min:10, name:'Soldado',   icon:'&#128081;',desc:'Mais de 10 treinos! O habito esta se formando.',       color:'#ffc45e'},
+  {min:25, name:'Guerreiro', icon:'&#9876;',  desc:'25 treinos! Voce ja e um atleta regular.',             color:'#4ECDC4'},
+  {min:50, name:'Veterano',  icon:'&#128293;',desc:'50 treinos! Seu corpo esta mudando visivelmente.',      color:'#60b8ff'},
+  {min:100,name:'Beast',     icon:'&#129409;',desc:'100+ treinos! Voce e uma MAQUINA. BeastMode ON!',     color:'#ff9500'},
+];
+
+// ── LOCALSTORAGE ───────────────────────────────────────────────────
+function lsG(k,d){try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch(e){return d;}}
+function lsS(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+// ── STATE (persisted) ──────────────────────────────────────────────
+let curWK='peito',curEX=-1,todayWK=null;
+// SD/SW/SR/machineSettings are stored per-exercise in localStorage
+let timerInt=null,tTotal=0,tLeft=0;
+let doneWK=lsG('bm_doneWK',0);
+let donePlyo=lsG('bm_donePlyo',0);
+
+function exKey(name,suffix){return 'bm_ex_'+encodeURIComponent(name.slice(0,20))+'_'+suffix;}
+function getSD(name,len){return lsG(exKey(name,'sd'),Array(len).fill(false));}
+function getSW(name,defaults){return lsG(exKey(name,'sw'),defaults);}
+function getSR(name,defaults){return lsG(exKey(name,'sr'),defaults);}
+function getMSet(name){return lsG(exKey(name,'mset'),{banco:'',encosto:''});}
+function saveSD(name,arr){lsS(exKey(name,'sd'),arr);}
+function saveSW(name,arr){lsS(exKey(name,'sw'),arr);}
+function saveSR(name,arr){lsS(exKey(name,'sr'),arr);}
+function saveMSet(name,obj){lsS(exKey(name,'mset'),obj);}
+
+// In-session caches (loaded from LS per exercise)
+let SD={},SW={},SR={};
+
+function saveAll(){
+  // profile
+  lsS('bm_profile',{
+    altura:document.getElementById('p-altura').value,
+    idade:document.getElementById('p-idade').value,
+    genero:document.getElementById('p-genero').value,
+    biotipo:document.getElementById('p-biotipo').value,
+  });
+}
+function loadProfile(){
+  const p=lsG('bm_profile',{});
+  if(p.altura)document.getElementById('p-altura').value=p.altura;
+  if(p.idade) document.getElementById('p-idade').value=p.idade;
+  if(p.genero)document.getElementById('p-genero').value=p.genero;
+  if(p.biotipo)document.getElementById('p-biotipo').value=p.biotipo;
+}
+
+// ── NAV ───────────────────────────────────────────────────────────
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('a'));
+  const map={home:'nav-home',workout:'nav-treino',indicadores:'nav-ind',profile:'nav-profile'};
+  if(map[id])document.getElementById(map[id]).classList.add('a');
+  const cnt=document.querySelector('#s-'+id+' .cnt');if(cnt)cnt.scrollTop=0;
+  if(id==='indicadores')buildInd();
+  if(id==='profile')loadProfile();
+}
+function openWorkout(){buildWorkout();goTo('workout');}
+function goToPlyo(){buildPlyo();goTo('plyo');}
+
+// ── TIMER ─────────────────────────────────────────────────────────
+function startT(sec,label){
+  if(timerInt)clearInterval(timerInt);
+  tTotal=sec;tLeft=sec;
+  document.getElementById('tm-l').textContent=label;
+  updT();document.getElementById('tmod').classList.add('show');
+  timerInt=setInterval(()=>{tLeft--;if(tLeft<=0){skipT();return;}updT();},1000);
+}
+function updT(){
+  document.getElementById('tnum').textContent=tLeft;
+  const off=534*(1-tLeft/tTotal);
+  const rp=document.getElementById('rp');
+  rp.style.strokeDashoffset=off;
+  rp.style.stroke=tLeft/tTotal>0.35?'#4ECDC4':'#ffc45e';
+}
+function skipT(){clearInterval(timerInt);timerInt=null;document.getElementById('tmod').classList.remove('show');}
+function addT(s){tLeft+=s;tTotal+=s;updT();}
+
+// ── HOME ──────────────────────────────────────────────────────────
+function buildHome(){
+  const now=new Date(),day=now.getDay();
+  document.getElementById('home-date').textContent=`${DAYS[day]}, ${now.getDate()} de ${MONTHS[now.getMonth()]}`;
+  const daysSince=Math.floor((now-START)/86400000);
+  document.getElementById('stat-days').textContent=daysSince;
+  document.getElementById('stat-done').textContent=doneWK;
+  document.getElementById('prof-t').textContent=doneWK;
+  document.getElementById('prof-w').textContent=Math.floor(daysSince/7);
+  const wkKey=SCH[day];
+  if(wkKey==='off'){
+    document.getElementById('home-hero').innerHTML=`<div class="off-card"><div style="font-size:40px;margin-bottom:10px">&#128564;</div><div class="off-title">DIA DE DESCANSO</div><div class="off-sub">Hoje e ${DAYS[day]} — dia OFF.<br>Descanse, hidrate-se e recupere!<br>Bora amanha com tudo!</div></div>`;
+    document.getElementById('plyo-banner-home').innerHTML='';return;
+  }
+  curWK=wkKey;todayWK=W[curWK];
+  // Load each exercise from LS
+  SD={};SW={};SR={};
+  todayWK.exercises.forEach((ex,i)=>{
+    SD[i]=getSD(ex.n,ex.sr.length);
+    SW[i]=getSW(ex.n,ex.sr.map(s=>s.w));
+    SR[i]=getSR(ex.n,ex.sr.map(s=>s.r));
+  });
+  const dl=['S','T','Q','Q','S','S','D'];
+  let wdH='';
+  for(let i=1;i<=7;i++){
+    const di=i%7,isOff=di===0||di===6,isToday=di===day;
+    let cls='wd fut';
+    if(isOff)cls='wd off';
+    else if(isToday)cls='wd today';
+    else if(di<day&&!isOff)cls='wd done';
+    const dot=!isOff?`<span class="dt"></span>`:'';
+    wdH+=`<div class="${cls}">${isOff?'OFF':dl[di]}${!isOff&&!isToday?dot:(isToday?dot:'')}</div>`;
+  }
+  const tags=todayWK.muscles.map(m=>`<span class="mtag">${m}</span>`).join('');
+  const total=todayWK.exercises.reduce((a,e)=>a+e.sr.length,0);
+  const done=Object.values(SD).flat().filter(Boolean).length;
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('home-hero').innerHTML=`
+    <div class="whc" onclick="openWorkout()">
+      <div class="wh-top">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div class="wtag">TREINO DE HOJE</div>
+          ${pct>0?`<div class="wtag" style="background:rgba(78,205,196,.2)">${pct}% feito</div>`:''}
+        </div>
+        <div class="wh-title">${todayWK.name}</div>
+        <div class="wh-sub">${todayWK.sub} &middot; ${todayWK.exercises.length} ex${todayWK.cardio?' + Esteira 20min':''}</div>
+        <div class="wdays">${wdH}</div>
+      </div>
+      <div class="wh-bot"><div class="mtags">${tags}</div><button class="sbtn" onclick="event.stopPropagation();openWorkout()">${pct>0?'Continuar &rsaquo;':'Iniciar &rsaquo;'}</button></div>
+    </div>`;
+  const isPlyoDay=PLYO_DAYS.includes(day);
+  const pb=document.getElementById('plyo-banner-home');
+  if(isPlyoDay)pb.innerHTML=`<div class="plyo-banner"><div style="flex:1"><div class="pb-tag">&#9889; RECOMENDADO HOJE</div><div class="pb-title">Treino de Impulsao</div><div class="pb-sub">Agendado pelo app — faca apos a musculacao</div></div><button class="pb-btn" onclick="goToPlyo()">INICIAR</button></div>`;
+  else{const next=PLYO_DAYS.find(d=>d>day)||PLYO_DAYS[0];pb.innerHTML=`<div class="plyo-banner" style="opacity:.55"><div style="flex:1"><div class="pb-tag">&#9889; PROXIMO</div><div class="pb-title">Treino de Impulsao</div><div class="pb-sub">Agendado para ${DAYS[next]}-feira</div></div><button class="pb-btn" onclick="goToPlyo()">VER</button></div>`;}
+}
+
+// ── WORKOUT LIST ──────────────────────────────────────────────────
+function buildWorkout(){
+  if(!todayWK)return;
+  document.getElementById('wl-title').textContent=todayWK.name;
+  const allS=todayWK.exercises.reduce((a,e)=>a+e.sr.length,0);
+  const doneS=Object.values(SD).flat().filter(Boolean).length;
+  const pct=allS?Math.round(doneS/allS*100):0;
+  const tags=todayWK.muscles.map(m=>`<span class="mtag">${m}</span>`).join('');
+  let html=`<div class="whcard"><h3>${todayWK.name}</h3><p>${todayWK.sub}</p><div class="whtags">${tags}</div></div>
+    <div class="prog-txt"><span>${doneS} de ${allS} series</span><span>${pct}%</span></div>
+    <div class="pbw"><div class="pb" style="width:${pct}%"></div></div><div style="height:4px"></div>`;
+  todayWK.exercises.forEach((ex,i)=>{
+    const allD=(SD[i]||[]).every(Boolean)&&(SD[i]||[]).length>0;
+    const isPrancha=ex.n.includes('Prancha');
+    const pills=ex.sr.map((s,si)=>{
+      const w=SW[i]?SW[i][si]:s.w,r=SR[i]?SR[i][si]:s.r,d=SD[i]&&SD[i][si];
+      const label=isPrancha?`${r}s`:`${r}x${w>0?w+'kg':'corpo'}`;
+      return `<span class="pill ${d?'done':''}">${label}</span>`;
+    }).join('');
+    html+=`<div class="ec ${allD?'done-all':''}" onclick="openEx(${i})">
+      <div class="ecthumb"><img src="${IMG[ex.img]}" loading="lazy" alt="${ex.n}" onerror="this.style.background='var(--n3)'"><div class="ov"></div></div>
+      <div class="ecrow"><div><div class="ecn">${ex.n}</div><div class="ecm">${ex.m.join(' &middot; ')}</div></div><div class="ecch ${allD?'done':''}">${allD?'&#10003;':'&rsaquo;'}</div></div>
+      <div class="pills">${pills}</div>
+    </div>`;
+  });
+  if(todayWK.cardio)html+=`<div class="cardio-bar"><img src="${IMG.esteira}" onerror="this.style.display='none'" alt="Esteira"><span>&#127939; Esteira &mdash; 20 minutos de cardio leve</span></div>`;
+  html+=`<button class="btn green" onclick="finishWK()">&#10003; Finalizar treino</button>`;
+  if(PLYO_DAYS.includes(new Date().getDay()))html+=`<button class="btn blu" onclick="goToPlyo()" style="margin-top:0">&#9889; Adicionar Impulsao</button>`;
+  document.getElementById('workout-cnt').innerHTML=html;
+}
+
+function finishWK(){
+  doneWK++;
+  lsS('bm_doneWK',doneWK);
+  // Clear today's series completion (reset for next session)
+  if(todayWK){todayWK.exercises.forEach(ex=>{saveSD(ex.n,Array(ex.sr.length).fill(false));});}
+  SD={};SW={};SR={};
+  buildHome();goTo('home');
+}
+
+// ── EXERCISE DETAIL ───────────────────────────────────────────────
+function openEx(idx){curEX=idx;buildExDetail();goTo('exercise');}
+function buildExDetail(){
+  const ex=todayWK.exercises[curEX];
+  document.getElementById('ex-title').textContent=ex.n;
+  // Ensure caches are up to date
+  SD[curEX]=getSD(ex.n,ex.sr.length);
+  SW[curEX]=getSW(ex.n,ex.sr.map(s=>s.w));
+  SR[curEX]=getSR(ex.n,ex.sr.map(s=>s.r));
+  const mset=getMSet(ex.n);
+  const isPrancha=ex.n.includes('Prancha');
+  const isBodyweight=ex.sr.every(s=>s.w===0)&&!isPrancha;
+  const mt=ex.m.map(m=>`<span class="mtag">${m}</span>`).join('');
+  const rows=ex.sr.map((s,i)=>{
+    const w=SW[curEX][i],r=SR[curEX][i],dn=SD[curEX][i];
+    const rLabel=isPrancha?'seg':'reps';
+    const wCell=isPrancha
+      ?`<div class="sc2"><div class="sv2">40s</div><div class="slb">tempo</div></div>`
+      :isBodyweight
+      ?`<div class="sc2"><div class="sv2" style="font-size:10px">corpo</div><div class="slb">peso</div></div>`
+      :`<div class="sc2"><input class="ev" id="w${i}" type="number" value="${w}" min="0" max="500" step="0.5" onchange="updW(${i},this.value)"><div class="slb">kg</div></div>`;
+    return `<div class="str ${dn?'dr':''}" id="str${i}">
+      <div class="sn ${dn?'dn':''}" id="sn${i}">${i+1}</div>
+      <div class="sc2"><input class="ev" id="r${i}" type="number" value="${r}" min="1" max="99" onchange="updR(${i},this.value)"><div class="slb">${rLabel}</div></div>
+      ${wCell}
+      <div class="sc2"><div class="sv2">${s.d}s</div><div class="slb">desc</div></div>
+      <button class="chk ${dn?'done':''}" id="chk${i}" onclick="chkS(${i},${s.d})">${dn?'&#10003;':'&#9675;'}</button>
+    </div>`;
+  }).join('');
+  document.getElementById('exercise-cnt').innerHTML=`
+    <div class="edimg"><img src="${IMG[ex.img]}" alt="${ex.n}" onerror="this.style.background='var(--n3)'"><div class="ov"></div><div class="edimg-title"><h3>${ex.n}</h3><div class="mtags2">${mt}</div></div></div>
+    <div class="ds"><div class="dst">Series &mdash; Toque &#9675; para marcar &middot; Edite peso/reps</div>${rows}</div>
+    <div class="mset">
+      <div class="dst">&#9881; Ajustes da Maquina (salvo automaticamente)</div>
+      <div class="mset-row"><span class="mset-label">Ajuste do Banco</span><input class="mset-input" id="ms-banco" placeholder="ex: 3" value="${mset.banco}" onchange="saveMSetUI('${ex.n}')"></div>
+      <div class="mset-row"><span class="mset-label">Posicao do Encosto</span><input class="mset-input" id="ms-encosto" placeholder="ex: 2" value="${mset.encosto}" onchange="saveMSetUI('${ex.n}')"></div>
+    </div>
+    <button class="btn red" onclick="showAlts()">&#128683; Maquina ocupada &mdash; ver alternativas</button>
+    <button class="btn ghost" onclick="goTo('workout')">&#8592; Voltar ao treino</button>`;
+}
+
+function saveMSetUI(name){
+  saveMSet(name,{
+    banco:document.getElementById('ms-banco').value,
+    encosto:document.getElementById('ms-encosto').value
+  });
+}
+function chkS(idx,rest){
+  const ex=todayWK.exercises[curEX];
+  SD[curEX][idx]=!SD[curEX][idx];
+  const dn=SD[curEX][idx];
+  saveSD(ex.n,SD[curEX]);
+  document.getElementById(`chk${idx}`).className='chk'+(dn?' done':'');
+  document.getElementById(`chk${idx}`).innerHTML=dn?'&#10003;':'&#9675;';
+  document.getElementById(`str${idx}`).className='str'+(dn?' dr':'');
+  document.getElementById(`sn${idx}`).className='sn'+(dn?' dn':'');
+  if(dn){const isLast=idx===ex.sr.length-1;startT(rest,isLast?'Ultimo set! Excelente! &#128170;':`Serie ${idx+1} concluida!`);}
+}
+function updW(i,v){
+  const ex=todayWK.exercises[curEX];
+  SW[curEX][i]=parseFloat(v)||0;
+  saveSW(ex.n,SW[curEX]);
+}
+function updR(i,v){
+  const ex=todayWK.exercises[curEX];
+  SR[curEX][i]=parseInt(v)||1;
+  saveSR(ex.n,SR[curEX]);
+}
+
+// ── ALTERNATIVES ──────────────────────────────────────────────────
+function showAlts(){
+  const ex=todayWK.exercises[curEX];
+  document.getElementById('alt-banner').textContent=`Alternativas para: ${ex.m.join(', ')}`;
+  let html='';
+  ex.alts.forEach((name,i)=>{
+    const imgKey=ex.altIMG?.[i]||'supino_v';
+    html+=`<div class="altc" onclick="goTo('exercise')"><div class="altcimg"><img src="${IMG[imgKey]}" loading="lazy" alt="${name}" onerror="this.style.background='var(--n3)'"><div class="ov"></div></div><div class="altci"><div><div class="altcn">${name}</div><div class="altcm">${ex.m.join(' &middot; ')}</div></div><div class="ecch">&rsaquo;</div></div></div>`;
+  });
+  document.getElementById('alt-cnt').innerHTML=html;
+  goTo('alternatives');
+}
+
+// ── PLYO ──────────────────────────────────────────────────────────
+function buildPlyo(){
+  const day=new Date().getDay(),isRec=PLYO_DAYS.includes(day);
+  document.getElementById('plyo-lbl').textContent=isRec?'Recomendado HOJE pelo app ✓':'Disponivel — Seg, Qua e Sex';
+  let html='';
+  plyoEx.forEach((p,i)=>{
+    html+=`<div class="pc"><div class="pcimg"><img src="${IMG[p.img]}" loading="lazy" alt="${p.n}" onerror="this.style.background='var(--n3)'"></div><div class="pch"><div class="pcn">${i+1}</div><div><div class="pcna">${p.n}</div><div class="pct">${p.tgt}</div></div></div><div class="pcs"><div class="pcss"><div class="pcssv">${p.sets}</div><div class="pcssl">series</div></div><div class="pcss"><div class="pcssv">${p.reps}</div><div class="pcssl">reps</div></div><div class="pcss"><div class="pcssv">${p.rest}s</div><div class="pcssl">descanso</div></div></div><div class="pctip">&#128161; ${p.tip}</div></div>`;
+  });
+  document.getElementById('plyo-list').innerHTML=html;
+}
+function startPlyoActive(){
+  let idx=0;
+  function render(){
+    const p=plyoEx[idx];
+    document.getElementById('pa-title').textContent=`${idx+1}/${plyoEx.length}`;
+    const last=idx===plyoEx.length-1;
+    document.getElementById('pa-cnt').innerHTML=`<div style="padding:18px 14px"><div style="height:155px;background:var(--n3);border-radius:14px;overflow:hidden;margin-bottom:16px"><img src="${IMG[p.img]}" style="width:100%;height:155px;object-fit:cover" alt="${p.n}" onerror="this.style.background='var(--n3)'"></div><div style="font-size:26px;font-weight:900;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;margin-bottom:4px">${p.n}</div><div style="font-size:12px;color:var(--mu);margin-bottom:14px">${p.tgt}</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:12px"><div class="sc"><div class="scl">Series</div><div class="scv">${p.sets}</div></div><div class="sc"><div class="scl">Reps</div><div class="scv">${p.reps}</div></div><div class="sc"><div class="scl">Descanso</div><div class="scv">${p.rest}s</div></div></div><div class="pctip" style="margin:0 0 14px">&#128161; ${p.tip}</div><button class="btn green" onclick="startT(${p.rest},'Bom trabalho! Descanse agora.')">&#8987; Timer de descanso</button>${last?`<button class="btn green" style="margin-top:0" onclick="finishPlyo()">&#127942; Concluir!</button>`:`<button class="btn blu" style="margin-top:0" onclick="nextP()">Proximo &rsaquo;</button>`}<button class="btn ghost" onclick="goTo('plyo')">&#8592; Voltar</button></div>`;
+  }
+  window.nextP=()=>{idx++;render();};
+  window.finishPlyo=()=>{
+    donePlyo++;doneWK++;
+    lsS('bm_donePlyo',donePlyo);lsS('bm_doneWK',doneWK);
+    buildHome();
+    document.getElementById('pa-cnt').innerHTML=`<div style="padding:40px 20px;text-align:center"><div style="font-size:60px;margin-bottom:14px">&#127942;</div><div style="font-size:32px;font-weight:900;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;margin-bottom:8px">TREINO COMPLETO!</div><div style="font-size:13px;color:var(--mu);line-height:1.7;margin-bottom:24px">Musculacao + Impulsao finalizados.<br><strong style="color:#4ECDC4">1% melhor que ontem!</strong></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:24px"><div class="sc"><div class="scl">Exercicios</div><div class="scv">${(todayWK?.exercises?.length||0)+plyoEx.length}</div></div><div class="sc"><div class="scl">Status</div><div class="scv">&#128081;</div></div></div><button class="btn green" onclick="goTo('home')">&#8592; Inicio</button></div>`;
+  };
+  render();goTo('plyo-active');
+}
+
+// ── INDICADORES ───────────────────────────────────────────────────
+function buildInd(){
+  const now=new Date(),day=now.getDay();
+  const daysSince=Math.floor((now-START)/86400000);
+  document.getElementById('ind-days').textContent=daysSince;
+  document.getElementById('ind-weeks').textContent=Math.floor(daysSince/7);
+  document.getElementById('ind-t').textContent=doneWK;
+  document.getElementById('ind-p').textContent=donePlyo;
+  let level=LEVELS[0];
+  for(const l of LEVELS)if(doneWK>=l.min)level=l;
+  const nextL=LEVELS[LEVELS.indexOf(level)+1];
+  const pctL=nextL?Math.min(100,Math.round(((doneWK-level.min)/(nextL.min-level.min))*100)):100;
+  document.getElementById('level-section').innerHTML=`<div class="level-card"><div class="level-badge">${level.icon} NIVEL ATUAL</div><div class="level-name" style="color:${level.color}">${level.name}</div><div class="level-desc">${level.desc}</div>${nextL?`<div class="level-bar-wrap"><div class="level-bar" style="width:${pctL}%"></div></div><div class="level-pct">${doneWK} / ${nextL.min} treinos para <strong>${nextL.name}</strong></div>`:'<div style="margin-top:8px;font-size:11px;color:#ff9500;font-weight:700">Nivel maximo! Voce e uma lenda!</div>'}</div>`;
+  const dl=['S','T','Q','Q','S','S','D'];
+  let wg='';
+  for(let i=1;i<=7;i++){
+    const di=i%7,isOff=di===0||di===6,isToday=di===day,isPly=PLYO_DAYS.includes(di);
+    let cls='wg-day';if(isOff)cls+=' off2';else if(isToday)cls+=' t';
+    wg+=`<div class="${cls}">${dl[di]}${!isOff?`<div class="wg-dot"></div>`:''}${isPly&&!isOff?`<span style="font-size:7px;color:#60b8ff">&#9889;</span>`:''}</div>`;
+  }
+  document.getElementById('week-grid').innerHTML=wg;
+  let nw='';
+  for(let cnt=0;cnt<5;cnt++){
+    const actual=(day+cnt+1)%7,wk=SCH[actual],isOff=actual===0||actual===6;
+    nw+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--br)"><span style="font-size:11px;color:var(--mu)">${DAYS[actual]}</span><span style="font-size:11px;font-weight:700;color:${isOff?'var(--red)':'var(--t)'}">${isOff?'&#128564; Descanso':WN[wk]}</span></div>`;
+  }
+  document.getElementById('next-wks').innerHTML=nw;
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────
+window.onload=function(){
+  buildHome();
+  setTimeout(()=>{
+    document.getElementById('splash').classList.add('fade');
+    setTimeout(()=>{
+      document.getElementById('splash').style.display='none';
+      document.getElementById('app').classList.add('show');
+    },1000);
+  },5000);
+};
+</script>
+</body>
+</html>
